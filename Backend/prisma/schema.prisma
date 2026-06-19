@@ -1,0 +1,111 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Get a free hosted Postgres database in seconds: `npx create-db`
+
+generator client {
+  provider = "prisma-client"
+  output   = "../generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  firstname String
+  lastname  String
+  email     String   @unique
+  password  String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  videos       Video[]
+  subscribedTo Subscribe[] @relation("Subscriber")
+  subscribers  Subscribe[] @relation("Channel")
+  userVideos   UserVideo[]
+  comments     Comment[]
+
+  NotifiReceived Notification[] @relation("NotificationReceiver")
+  NotifiSend   Notification[] @relation("NotificationSender")
+
+  subscriberCount Int @default(0)
+  videoCount      Int @default(0)
+}
+
+model Video {
+  id          Int     @id @default(autoincrement())
+  upload_url  String
+  title       String
+  duration    Int?
+  description String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  creatorId Int
+  creator   User @relation(fields: [creatorId], references: [id])
+
+  userVideos UserVideo[]
+  comments   Comment[]
+
+  commentCount Int @default(0)
+  likeCount    Int @default(0)
+  videoCoiunt  Int @default(0)
+}
+
+//Junction table between user and vedio
+model UserVideo {
+  id    Int      @id @default(autoincrement())
+  liked Boolean? // true=like false=dislike null
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  videoId Int
+  video   Video @relation(fields: [videoId], references: [id])
+
+  @@unique([userId, videoId]) //one user like once per vedio
+}
+
+model Subscribe {
+  id        Int      @id @default(autoincrement())
+  subscribe Boolean?
+
+  subscriberId Int
+  subscriber   User @relation("Subscriber", fields: [subscriberId], references: [id])
+
+  channelId Int
+  channel   User @relation("Channel", fields: [channelId], references: [id])
+
+  @@unique([subscriberId, channelId]) //one subscriber with one channel
+}
+
+model Comment {
+  id      Int     @id @default(autoincrement())
+  comment String
+  email   String?
+
+  videoId Int
+  video   Video @relation(fields: [videoId], references: [id])
+
+  userId Int
+  user   User @relation(fields: [userId], references: [id])
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Notification {
+  id        Int      @id @default(autoincrement())
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  receiverId Int
+  receiver User @relation("NotificationReceiver", fields: [receiverId],references: [id])
+
+  senderId Int
+  sender User @relation("NotificationSender", fields: [senderId],references: [id])
+}
