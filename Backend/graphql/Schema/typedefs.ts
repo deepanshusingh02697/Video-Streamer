@@ -98,7 +98,7 @@ type Notification{
 type Query{
     currentUser:User!
     getVideoById(videoId:Int!):Video
-    getAllVideos:[Video!]
+    getAllVideos(search:String):[Video!]
 
     getUserVideo(videoId:Int!):UserVideo!
     getSubscribe(channelId:Int!):Subscribe!

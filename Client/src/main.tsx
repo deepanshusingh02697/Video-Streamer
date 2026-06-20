@@ -5,12 +5,17 @@ import App from "./App.tsx";
 import { BrowserRouter } from "react-router-dom";
 import { client } from "./ApolloClient.tsx";
 import { ApolloProvider } from "@apollo/client/react";
+import { SearchVideoProvider } from "./Component/Context/searchVideo.tsx";
+import { ToastContainer } from "react-toastify";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <ApolloProvider client={client}>
       <BrowserRouter>
-        <App />
+        <SearchVideoProvider>
+          <App />
+          <ToastContainer/>
+        </SearchVideoProvider>
       </BrowserRouter>
     </ApolloProvider>
   </StrictMode>

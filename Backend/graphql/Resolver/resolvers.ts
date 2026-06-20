@@ -15,15 +15,35 @@ export const resolvers = {
       try {
         return prisma.user.findUnique({
           where: { id: ctx.userId! },
-          include: { userVideos: true, subscribedTo: true, comments: true,subscribers:{include:{subscriber:true}} },
+          include: {
+            userVideos: true,
+            subscribedTo: true,
+            comments: true,
+            subscribers: { include: { subscriber: true } },
+          },
         });
       } catch (error) {
         console.log("error in signup mutation : ", error);
         throw error;
       }
     },
-    getAllVideos: async (_parent: unknown, _args: unknown, ctx: unknown) => {
-      return prisma.video.findMany();
+    getAllVideos: async (
+      _parent: unknown,
+      args: { search: string },
+      _ctx: unknown,
+    ) => {
+      console.log("args.search ===+> ",args.search);
+      
+      return prisma.video.findMany({
+        where: args.search
+          ? {
+              title: {
+                contains: args.search,
+                mode: "insensitive",
+              },
+            }
+          : {},
+      });
     },
     getVideoById: async (
       _parent: unknown,
@@ -65,25 +85,27 @@ export const resolvers = {
             channelId: args.channelId,
           },
         },
-        include:{
-          subscriber:true,
-          channel:true
-        }
+        include: {
+          subscriber: true,
+          channel: true,
+        },
       });
     },
-    getAllSubscribers:async(_parent: unknown,
+    getAllSubscribers: async (
+      _parent: unknown,
       _args: unknown,
-      ctx: context)=>{
-        isAuth(ctx)
-        return await prisma.subscribe.findMany({
-          where:{
-            channelId:ctx.userId!
-          },
-          include:{
-            subscriber:true,
-            channel:true
-          }
-        })
+      ctx: context,
+    ) => {
+      isAuth(ctx);
+      return await prisma.subscribe.findMany({
+        where: {
+          channelId: ctx.userId!,
+        },
+        include: {
+          subscriber: true,
+          channel: true,
+        },
+      });
     },
     getCommentById: async (
       _parent: unknown,
@@ -265,6 +287,7 @@ export const resolvers = {
         create: {
           subscriberId: ctx.userId!,
           channelId: args.channelId,
+          subscribe: args.subscribe
         },
         include: {
           subscriber: true,
@@ -375,9 +398,10 @@ export const resolvers = {
         include: { sender: true, receiver: true },
       });
       console.log("message is : ", notiMsg);
-      const roomId = twoUserRoomId<number>(ctx.userId!, args.receiverId);
+      // const roomId = twoUserRoomId<number>(ctx.userId!, args.receiverId);
+      // await ctx.io.to(roomId).emit("newNotification", notiMsg);
+      const roomId = String(args.receiverId)
       await ctx.io.to(roomId).emit("newNotification", notiMsg);
-      // await ctx.io.to(String(args.receiverId)).emit("newNotification", notiMsg);
       return notiMsg;
     },
   },
@@ -385,11 +409,11 @@ export const resolvers = {
   User: {
     subscriberCount: async (
       parent: { id: number },
-      args: unknown,
-      ctx: context,
+      _args: unknown,
+      _ctx: context,
     ) => {
       return await prisma.subscribe.count({
-        where: { channelId: parent.id },
+        where: { channelId: parent.id,subscribe:true },
       });
     },
     videoCount: async (parent: { id: number }, args: unknown, ctx: context) => {
@@ -401,22 +425,22 @@ export const resolvers = {
   Video: {
     commentCount: async (
       parent: { id: number },
-      args: unknown,
-      ctx: context,
+      _args: unknown,
+      _ctx: context,
     ) => {
       return await prisma.comment.count({
         where: { videoId: parent.id },
       });
     },
-    likeCount: async (parent: { id: number }, args: unknown, ctx: context) => {
+    likeCount: async (parent: { id: number }, args: unknown,  _ctx: unknown) => {
       return await prisma.userVideo.count({
         where: { videoId: parent.id, liked: true },
       });
     },
     dislikeCount: async (
       parent: { id: number },
-      args: unknown,
-      ctx: context,
+      _args: unknown,
+      _ctx: unknown,
     ) => {
       return await prisma.userVideo.count({
         where: { videoId: parent.id, liked: false },

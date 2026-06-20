@@ -3,62 +3,95 @@ import CardContent from "@mui/material/CardContent";
 import CardMedia from "@mui/material/CardMedia";
 import Typography from "@mui/material/Typography";
 import CardActionArea from "@mui/material/CardActionArea";
-import Stack from "@mui/material/Stack";
+import Box from "@mui/material/Box";
 import { Toolbar } from "@mui/material";
 import { useQuery } from "@apollo/client/react";
 import { Get_All_Vedios } from "../graphql/Query";
 import PlayCircleIcon from "@mui/icons-material/PlayCircle";
 
-// import type { Get_All_Vedios_Interface } from "../graphql/Client";
 import { useNavigate } from "react-router-dom";
 import type { Get_All_Vedios_QueryQuery } from "../types/__generated__/graphql";
+import { useEffect } from "react";
+import { useSearchVideo } from "../Component/Context/searchVideo";
 
 export default function Home() {
-  const { data, loading } = useQuery<Get_All_Vedios_QueryQuery>(Get_All_Vedios);
+  const { isSearchVideo } = useSearchVideo();
+
+  const { data, loading, refetch } = useQuery<Get_All_Vedios_QueryQuery>(
+    Get_All_Vedios,
+    {
+      variables: {
+        search: isSearchVideo,
+      },
+    },
+  );
+  console.log(isSearchVideo);
+  
   const navigate = useNavigate();
+  // setSearchValuebyHook("")
+
+  useEffect(() => {
+    refetch({ search: isSearchVideo });
+  }, [isSearchVideo]);
 
   if (loading) return <Typography variant="body1">Loading...</Typography>;
 
   const res = data?.getAllVideos;
+
+  console.log("data is. : ", data);
+
   if (!res) {
     return <Typography variant="body1">No data Found</Typography>;
   }
 
   return (
-    <Toolbar sx={{ display: "grid",placeItems: "center", margin: "20px 0px" }}>
-      <Stack
-        direction="row"
-        spacing={2}
+    <Toolbar sx={{ display: "block", margin: "20px 0px" }}>
+      <Box
         sx={{
-          width: "95%",
-          flexWrap: "wrap",
-          justifyContent: "space-between",
+          display: "grid",
+          gridTemplateColumns: {
+            xs: "1fr",
+            sm: "repeat(auto-fill, minmax(350px, 1fr))",
+          },
           gap: "20px",
+          padding: { xs: "0 16px", sm: "0 20px" },
         }}
       >
         {res.map((ele: any, idx: number) => {
           return (
-            <Card sx={{ minWidth: 350, position: "relative" }} key={idx}>
+            <Card
+              sx={{
+                position: "relative",
+                ":hover": "#E9EEF8",
+                borderRadius: "15px",
+              }}
+              key={idx}
+            >
               <CardActionArea>
                 <CardMedia
                   component="video"
                   src={ele.upload_url}
-                  sx={{ height: 240 }}
+                  sx={{ aspectRatio: "16 / 9", height: "auto" }}
                 />
                 <PlayCircleIcon
                   sx={{
                     position: "absolute",
-                    size: "60px",
                     color: "#fff",
-                    left: "45%",
-                    top: "35%",
+                    left: "50%",
+                    top: "40%",
+                    transform: "translate(-50%, -50%)",
                     fontSize: "40px",
                   }}
                   onClick={() => navigate(`upload/${ele.id}`)}
                 />
 
                 <CardContent>
-                  <Typography gutterBottom variant="h5" component="div">
+                  <Typography
+                    gutterBottom
+                    variant="h5"
+                    component="div"
+                    sx={{ fontSize: "16px" }}
+                  >
                     {ele.title}
                   </Typography>
                   <Typography variant="body2" sx={{ color: "text.secondary" }}>
@@ -69,7 +102,7 @@ export default function Home() {
             </Card>
           );
         })}
-      </Stack>
+      </Box>
     </Toolbar>
   );
 }

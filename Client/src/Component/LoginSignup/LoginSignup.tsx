@@ -86,7 +86,7 @@ export default function LoginSignup() {
         },
       });
       console.log("response from login : ", response);
-      if (!response) {
+      if (!response?.data?.logIn) {
         toast("Invalid credentials! ", {
           position: "top-right",
           type: "warning",
@@ -107,10 +107,10 @@ export default function LoginSignup() {
         });
       }
     } catch (error) {
-      toast("Invalid credenetials",{
-        position:"top-right",
-        type:"info"
-      })
+      toast("Invalid credenetials", {
+        position: "top-right",
+        type: "info",
+      });
       console.log("error in logInSubmit : ", error);
     }
   };

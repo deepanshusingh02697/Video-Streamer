@@ -62,7 +62,9 @@ export const createAndEmitNotification = async (
     include: { sender: true, receiver: true },
   });
   console.log("message is : ", notiMsg);
-  const roomId = twoUserRoomId<number>(ctx.userId!, channelId);
+  // const roomId = twoUserRoomId<number>(ctx.userId!, channelId);
+  // await ctx.io.to(roomId).emit("newNotification", notiMsg);
+  const roomId = String(channelId)
   await ctx.io.to(roomId).emit("newNotification", notiMsg);
   return notiMsg;
 };

@@ -23,8 +23,8 @@ export const getCurUser_Query = gql`
   }
 `;
 export const Get_All_Vedios = gql`
-  query Get_All_Vedios_Query {
-    getAllVideos {
+  query Get_All_Vedios_Query($search: String) {
+    getAllVideos(search: $search) {
       id
       upload_url
       title

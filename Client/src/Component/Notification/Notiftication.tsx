@@ -5,6 +5,7 @@ import { getNotifications } from "../../graphql/Query";
 import { socket } from "../../socket";
 import { Box, Badge, IconButton } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
+import { useContextCurUser } from "../Context/authContext";
 
 interface NotificationItem {
   id: number;
@@ -19,12 +20,13 @@ interface NotificationItem {
 
 export default function Notiftication() {
   const [isNotifOpen, setIsNotifOpen] = React.useState(false);
-  const { data, loading, error, refetch } =
+  const { data, loading, refetch } =
     useQuery<GetNotificationsQuery>(getNotifications);
 
   const [notifications, setNotifications] = React.useState<NotificationItem[]>(
     [],
   );
+  const {authUser}=useContextCurUser()
 
   React.useEffect(() => {
     if (data?.getNotifications) {
@@ -35,6 +37,13 @@ export default function Notiftication() {
   const handleNotificationRefetch = React.useCallback(() => {
     refetch();
   }, [refetch]);
+
+  React.useEffect(() => {
+    if (authUser?.id) {
+      console.log('joining room with id : ',String(authUser?.id),typeof String(authUser?.id));
+      socket.emit("joinRoom", String(authUser?.id));
+    }
+  }, [authUser?.id]);
 
   React.useEffect(() => {
     socket.on("connect", () => {
@@ -53,7 +62,6 @@ export default function Notiftication() {
   }, [handleNotificationRefetch]);
 
   if (loading) return <div>Loading notifications...</div>;
-  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <IconButton
@@ -80,13 +88,6 @@ export default function Notiftication() {
                 background: "#E6E6E6",
               }}
             >
-              <Box
-                sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: "10px",
-                }}
-              >
                 <Box
                   sx={{
                     display: "flex",
@@ -94,6 +95,7 @@ export default function Notiftication() {
                     placeItems: "center",
                     fontSize: "16px",
                     minWidth: "300px",
+                    gap:"5px"
                   }}
                 >
                   {notifications.length === 0 ? (
@@ -128,7 +130,6 @@ export default function Notiftication() {
                   )}
                 </Box>
               </Box>
-            </Box>
           </>
         )}
       </Badge>

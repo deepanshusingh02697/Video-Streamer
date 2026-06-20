@@ -69,7 +69,7 @@ export default function Comment({ videoId }: proptype) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [activeIdx]);
 
-  useEffect(() => {
+  useEffect(() => { 
     console.log("curUserdata is : ", authUser);
 
     if (authUser) {
@@ -107,6 +107,7 @@ export default function Comment({ videoId }: proptype) {
   useEffect(()=>{
     refetchComment()
   },[addcommentM,updateComment,data])
+  
   const handleSubmitBtn = async () => {
     if (!isComent) return;
     if (editComment !== null) {
