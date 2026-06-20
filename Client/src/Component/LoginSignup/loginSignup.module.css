@@ -44,9 +44,9 @@ button {
   background-color: #ffffff;
   padding: 30px;
   border-radius: 12px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  box-shadow: rgba(0, 0, 0, 0.24) 0px 3px 8px;
   width: 100%;
-  min-width: 380px; 
+  min-width: 380px;
 }
 
 .signupCon form div {

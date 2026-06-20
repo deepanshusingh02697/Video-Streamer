@@ -11,7 +11,7 @@ import NotificationsActiveIcon from "@mui/icons-material/NotificationsActive";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import ThumbUpIcon from "@mui/icons-material/ThumbUp";
 import ThumbDownAltIcon from "@mui/icons-material/ThumbDownAlt";
- 
+
 import { useMutation, useQuery } from "@apollo/client/react";
 import { useParams } from "react-router-dom";
 import { Get_Video_ById, getSubscribeOrNotById } from "../graphql/Query";
@@ -29,7 +29,9 @@ import {
 } from "../graphql/Mutation";
 import type { Get_BubscribeOrNot_Interface } from "../graphql/client";
 import Comment from "./Comment";
- 
+import { MyPlayer } from "../Component/VideoJs/MyPlayer";
+import "@fontsource/roboto/500.css";
+
 export default function VedioDetail() {
   const { uploadId } = useParams();
   const { data, loading, error } = useQuery<QueryQuery>(Get_Video_ById, {
@@ -37,12 +39,12 @@ export default function VedioDetail() {
       videoId: Number(uploadId),
     },
   });
- 
+
   const [handlelikeDislikeMutation] =
     useMutation<LikeVedioMutation>(Liked_Vedio_Mutation);
   const [isLiked, setIsLiked] = React.useState<Boolean | null>(null);
   const [isSubscribe, setIsSubscribe] = React.useState<Boolean | null>(null);
- 
+
   const { data: getUserLikedDetail } = useQuery<GetLikedVedioQuery>(
     Get_Video_Liked_Detail,
     {
@@ -51,13 +53,13 @@ export default function VedioDetail() {
       },
     },
   );
- 
+
   const [subscribeChannel] = useMutation<SubscribeChannelMutation>(
     subscribeChannel_Mutation,
   );
- 
+
   const creatorId = data?.getVideoById?.creatorId;
- 
+
   const { data: getSubscribeOrNot } = useQuery<Get_BubscribeOrNot_Interface>(
     getSubscribeOrNotById,
     {
@@ -67,15 +69,15 @@ export default function VedioDetail() {
       skip: !creatorId,
     },
   );
- 
+
   React.useEffect(() => {
     setIsLiked(getUserLikedDetail?.getUserVideo?.liked ?? null);
   }, [getUserLikedDetail]);
- 
+
   React.useEffect(() => {
     setIsSubscribe(getSubscribeOrNot?.getSubscribe?.subscribe ?? null);
   }, [getSubscribeOrNot]);
- 
+
   const handleLikeBtn = async (id: number, liked: boolean) => {
     const res = await handlelikeDislikeMutation({
       variables: {
@@ -86,7 +88,7 @@ export default function VedioDetail() {
     const response = res.data?.likeVideo?.liked;
     setIsLiked(response ?? null);
   };
- 
+
   const handleSubscribeBtn = async (channelId: number, subscribed: boolean) => {
     const res = await subscribeChannel({
       variables: {
@@ -97,10 +99,10 @@ export default function VedioDetail() {
     const response = res.data?.subscribe;
     setIsSubscribe(response?.subscribe ?? null);
   };
- 
+
   if (loading) return <Typography>Loading...</Typography>;
   if (error) return <Typography>{error.message}</Typography>;
- 
+
   return (
     <>
       <Box
@@ -114,7 +116,7 @@ export default function VedioDetail() {
       >
         {data?.getVideoById ? (
           <Card sx={{ width: { xs: "100%", sm: "90%" }, boxShadow: "none" }}>
-            <CardMedia
+            {/* <CardMedia
               component="video"
               controls
               src={data.getVideoById.upload_url}
@@ -125,17 +127,22 @@ export default function VedioDetail() {
                 borderRadius: "12px",
                 backgroundColor: "#000",
               }}
-            />
- 
+            /> */}
+            <MyPlayer src={data.getVideoById.upload_url} />
+
             <CardContent sx={{ px: { xs: 0, sm: 2 } }}>
               <Typography
                 variant="h6"
-                sx={{ fontSize: { xs: "16px", sm: "18px" }, fontWeight: 600 }}
+                sx={{
+                  fontSize: { xs: "16px", sm: "18px" },
+                  fontWeight: 600,
+                  fontFamily: "Roboto",
+                }}
               >
                 {data.getVideoById.title}
               </Typography>
             </CardContent>
- 
+
             <Box
               sx={{
                 display: "flex",
@@ -173,7 +180,7 @@ export default function VedioDetail() {
                   </IconButton>
                 )}
               </CardActions>
- 
+
               <CardActions disableSpacing sx={{ p: 0 }}>
                 <IconButton
                   aria-label="like"
@@ -202,4 +209,3 @@ export default function VedioDetail() {
     </>
   );
 }
- 

@@ -1,8 +1,16 @@
 import { gql } from "@apollo/client";
 
 export const Upload_Vedio_Mutation = gql`
-  mutation Vedio_Mutation($title: String!, $uploadUrl: String!) {
-    uploadVideo(title: $title, upload_url: $uploadUrl) {
+  mutation Vedio_Mutation(
+    $title: String!
+    $uploadUrl: String!
+    $description: String
+  ) {
+    uploadVideo(
+      title: $title
+      upload_url: $uploadUrl
+      description: $description
+    ) {
       id
       upload_url
       title
@@ -146,5 +154,11 @@ export const editComment_Mutation = gql`
       createdAt
       updatedAt
     }
+  }
+`;
+
+export const updateReadNotification_Mutation = gql`
+  mutation readNorif_Mutation {
+    updateReadNotification
   }
 `;

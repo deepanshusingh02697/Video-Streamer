@@ -1,11 +1,12 @@
 import * as React from "react";
-import { useQuery } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import type { GetNotificationsQuery } from "../../types/__generated__/graphql";
 import { getNotifications } from "../../graphql/Query";
 import { socket } from "../../socket";
 import { Box, Badge, IconButton } from "@mui/material";
 import NotificationsIcon from "@mui/icons-material/Notifications";
 import { useContextCurUser } from "../Context/authContext";
+import { updateReadNotification_Mutation } from "../../graphql/Mutation";
 
 interface NotificationItem {
   id: number;
@@ -23,10 +24,21 @@ export default function Notiftication() {
   const { data, loading, refetch } =
     useQuery<GetNotificationsQuery>(getNotifications);
 
+  const [updateReadNotif] = useMutation<boolean>(
+    updateReadNotification_Mutation,
+    // {
+    //   refetchQueries: [
+    //     {
+    //       query: getNotifications,
+    //     },
+    //   ],
+    // },
+  );
+
   const [notifications, setNotifications] = React.useState<NotificationItem[]>(
     [],
   );
-  const {authUser}=useContextCurUser()
+  const { authUser } = useContextCurUser();
 
   React.useEffect(() => {
     if (data?.getNotifications) {
@@ -40,7 +52,11 @@ export default function Notiftication() {
 
   React.useEffect(() => {
     if (authUser?.id) {
-      console.log('joining room with id : ',String(authUser?.id),typeof String(authUser?.id));
+      console.log(
+        "joining room with id : ",
+        String(authUser?.id),
+        typeof String(authUser?.id),
+      );
       socket.emit("joinRoom", String(authUser?.id));
     }
   }, [authUser?.id]);
@@ -61,6 +77,16 @@ export default function Notiftication() {
     };
   }, [handleNotificationRefetch]);
 
+  const handleNotificationRead = async () => {
+    if (!isNotifOpen) {
+      await updateReadNotif();
+      setIsNotifOpen(true);
+    }else{
+      refetch()
+      setIsNotifOpen(false);
+    }
+  };
+
   if (loading) return <div>Loading notifications...</div>;
 
   return (
@@ -72,7 +98,7 @@ export default function Notiftication() {
       <Badge
         badgeContent={data?.getNotifications.length}
         color="error"
-        onClick={() => setIsNotifOpen(!isNotifOpen)}
+        onClick={handleNotificationRead}
       >
         <NotificationsIcon />
         {isNotifOpen && (
@@ -88,48 +114,48 @@ export default function Notiftication() {
                 background: "#E6E6E6",
               }}
             >
-                <Box
-                  sx={{
-                    display: "flex",
-                    flexDirection: "column",
-                    placeItems: "center",
-                    fontSize: "16px",
-                    minWidth: "300px",
-                    gap:"5px"
-                  }}
-                >
-                  {notifications.length === 0 ? (
-                    <Box>No notifications yet</Box>
-                  ) : (
-                    notifications.map((noti) => (
-                      <Box
-                        key={noti.id}
-                        sx={{
-                          padding: "5px",
-                          borderRadius: "10px",
-                          width: "100%",
-                          borderBottom: "1px solid #ddd",
-                          backgroundColor: noti.isRead ? "white" : "#f0f7ff",
-                        }}
-                      >
-                        <Box>{noti.message}</Box>
-                        <Box>
-                          {new Date(Number(noti.createdAt)).toLocaleTimeString(
-                            "en-IN",
-                            {
-                              day: "2-digit",
-                              month: "2-digit",
-                              year: "2-digit",
-                              hour: "2-digit",
-                              minute: "2-digit",
-                            },
-                          )}
-                        </Box>
+              <Box
+                sx={{
+                  display: "flex",
+                  flexDirection: "column",
+                  placeItems: "center",
+                  fontSize: "16px",
+                  minWidth: "300px",
+                  gap: "5px",
+                }}
+              >
+                {notifications.length === 0 ? (
+                  <Box>No notifications yet</Box>
+                ) : (
+                  notifications.map((noti) => (
+                    <Box
+                      key={noti.id}
+                      sx={{
+                        padding: "5px",
+                        borderRadius: "10px",
+                        width: "100%",
+                        borderBottom: "1px solid #ddd",
+                        backgroundColor: noti.isRead ? "white" : "#f0f7ff",
+                      }}
+                    >
+                      <Box>{noti.message}</Box>
+                      <Box>
+                        {new Date(Number(noti.createdAt)).toLocaleTimeString(
+                          "en-IN",
+                          {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "2-digit",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          },
+                        )}
                       </Box>
-                    ))
-                  )}
-                </Box>
+                    </Box>
+                  ))
+                )}
               </Box>
+            </Box>
           </>
         )}
       </Badge>

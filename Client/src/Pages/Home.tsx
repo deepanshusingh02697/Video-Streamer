@@ -7,7 +7,7 @@ import Box from "@mui/material/Box";
 import { Toolbar } from "@mui/material";
 import { useQuery } from "@apollo/client/react";
 import { Get_All_Vedios } from "../graphql/Query";
-import PlayCircleIcon from "@mui/icons-material/PlayCircle";
+import "@fontsource/roboto/500.css";
 
 import { useNavigate } from "react-router-dom";
 import type { Get_All_Vedios_QueryQuery } from "../types/__generated__/graphql";
@@ -25,8 +25,8 @@ export default function Home() {
       },
     },
   );
-  console.log(isSearchVideo);
-  
+  console.log("Get_All_Vedios ====> ",data);
+
   const navigate = useNavigate();
   // setSearchValuebyHook("")
 
@@ -53,7 +53,7 @@ export default function Home() {
             xs: "1fr",
             sm: "repeat(auto-fill, minmax(350px, 1fr))",
           },
-          gap: "20px",
+          gap: "5px",
           padding: { xs: "0 16px", sm: "0 20px" },
         }}
       >
@@ -61,36 +61,39 @@ export default function Home() {
           return (
             <Card
               sx={{
-                position: "relative",
-                ":hover": "#E9EEF8",
-                borderRadius: "15px",
+                background: "#FFFFFF",
+                boxShadow: "none",
+                ":hover": {
+                  background: "#E9EEF8",
+                  borderRadius: "14px",
+                },
               }}
               key={idx}
             >
-              <CardActionArea>
+              <CardActionArea
+                sx={{
+                  padding: "10px 6px 6px 6px",
+                  display: "grid",
+                  placeItems: "center",
+                }}
+              >
                 <CardMedia
                   component="video"
                   src={ele.upload_url}
-                  sx={{ aspectRatio: "16 / 9", height: "auto" }}
-                />
-                <PlayCircleIcon
                   sx={{
-                    position: "absolute",
-                    color: "#fff",
-                    left: "50%",
-                    top: "40%",
-                    transform: "translate(-50%, -50%)",
-                    fontSize: "40px",
+                    aspectRatio: "16 / 9",
+                    height: "auto",
+                    width: "98%",
+                    borderRadius: "16px",
                   }}
                   onClick={() => navigate(`upload/${ele.id}`)}
                 />
-
-                <CardContent>
+                <CardContent sx={{width:"100%"}}>
                   <Typography
                     gutterBottom
                     variant="h5"
                     component="div"
-                    sx={{ fontSize: "16px" }}
+                    sx={{ fontSize: "16px", fontFamily: "Roboto" }}
                   >
                     {ele.title}
                   </Typography>

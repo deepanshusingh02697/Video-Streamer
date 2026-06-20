@@ -47,6 +47,8 @@ export default function VideoUpload() {
       toast("File and title of video required");
       return;
     }
+    console.log(title,description);
+    
     setUploading(true);
     try {
       const formData = new FormData();
@@ -64,7 +66,7 @@ export default function VideoUpload() {
         variables: {
           title,
           uploadUrl: data.url,
-          description: description || undefined,
+          description: description
         },
       });
 

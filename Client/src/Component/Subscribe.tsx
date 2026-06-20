@@ -5,7 +5,7 @@ import type { getSubscribed_Query_Interface } from "../graphql/client";
 
 export default function Subscribe() {
   const { data, loading } = useQuery<getSubscribed_Query_Interface>(
-    get_AllSubscribed_Query
+    get_AllSubscribed_Query,
   );
   if (loading) return <Typography>Loading..</Typography>;
 
@@ -40,16 +40,15 @@ export default function Subscribe() {
                   </td>
                   <td>{ele?.subscriber?.email}</td>
                   <td>
-                    {new Date(ele?.subscriber?.createdAt).toLocaleString(
-                      "en-IN",
-                      {
-                        day: "2-digit",
-                        month: "2-digit",
-                        year: "2-digit",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      },
-                    )}
+                    {new Date(
+                      Number(ele?.subscriber?.createdAt),
+                    ).toLocaleTimeString("en-IN", {
+                      day: "2-digit",
+                      month: "2-digit",
+                      year: "2-digit",
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
                   </td>
                 </tr>
               </>
