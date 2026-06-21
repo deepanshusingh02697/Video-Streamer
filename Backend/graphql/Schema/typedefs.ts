@@ -125,6 +125,8 @@ type Mutation{
     addComment(videoId:Int!,comment:String!,email:String):Comment!
     deleteComment(commentId:Int!):Comment!
     updateComment(commentId:Int!, comment:String):Comment!
+
     sendNotification(receiverId:Int!,msg:String):Notification!
+    updateReadNotification:Boolean!
 }
 `;

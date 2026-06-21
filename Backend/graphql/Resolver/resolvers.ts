@@ -32,8 +32,8 @@ export const resolvers = {
       args: { search: string },
       _ctx: unknown,
     ) => {
-      console.log("args.search ===+> ",args.search);
-      
+      console.log("args.search ===+> ", args.search);
+
       return prisma.video.findMany({
         where: args.search
           ? {
@@ -127,7 +127,7 @@ export const resolvers = {
     ) => {
       isAuth(ctx);
       return await prisma.notification.findMany({
-        where: { receiverId: ctx.userId! },
+        where: { receiverId: ctx.userId!,isRead:false },
         orderBy: { createdAt: "desc" },
         include: { sender: true, receiver: true },
       });
@@ -236,6 +236,7 @@ export const resolvers = {
       if (!args.title || !args.upload_url) {
         throw new Error("kindly do provide title and video");
       }
+      console.log("description is : ", args.description);
       return await prisma.video.create({
         data: {
           title: args.title,
@@ -287,7 +288,7 @@ export const resolvers = {
         create: {
           subscriberId: ctx.userId!,
           channelId: args.channelId,
-          subscribe: args.subscribe
+          subscribe: args.subscribe,
         },
         include: {
           subscriber: true,
@@ -400,10 +401,22 @@ export const resolvers = {
       console.log("message is : ", notiMsg);
       // const roomId = twoUserRoomId<number>(ctx.userId!, args.receiverId);
       // await ctx.io.to(roomId).emit("newNotification", notiMsg);
-      const roomId = String(args.receiverId)
+      const roomId = String(args.receiverId);
       await ctx.io.to(roomId).emit("newNotification", notiMsg);
       return notiMsg;
     },
+    updateReadNotification: async (
+      _parent: unknown,
+      _args: unknown,
+      ctx: context,
+    ) => {
+      isAuth(ctx);
+      await prisma.notification.updateMany({
+        where:{receiverId:ctx.userId!,isRead:false},
+        data:{isRead:true}
+      })
+      return true
+    }
   },
 
   User: {
@@ -413,7 +426,7 @@ export const resolvers = {
       _ctx: context,
     ) => {
       return await prisma.subscribe.count({
-        where: { channelId: parent.id,subscribe:true },
+        where: { channelId: parent.id, subscribe: true },
       });
     },
     videoCount: async (parent: { id: number }, args: unknown, ctx: context) => {
@@ -432,7 +445,7 @@ export const resolvers = {
         where: { videoId: parent.id },
       });
     },
-    likeCount: async (parent: { id: number }, args: unknown,  _ctx: unknown) => {
+    likeCount: async (parent: { id: number }, args: unknown, _ctx: unknown) => {
       return await prisma.userVideo.count({
         where: { videoId: parent.id, liked: true },
       });

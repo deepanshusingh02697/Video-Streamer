@@ -8,6 +8,7 @@ import type {
   LogInMutation,
   SignUpMutation,
 } from "../../types/__generated__/graphql";
+import { getCurUser_Query } from "../../graphql/Query";
 
 export default function LoginSignup() {
   const [isLogin, setIsLogin] = useState(false);
@@ -69,7 +70,13 @@ export default function LoginSignup() {
     }
   };
 
-  const [logInuserMutation] = useMutation<LogInMutation>(LOG_IN_MUTATION);
+  const [logInuserMutation] = useMutation<LogInMutation>(LOG_IN_MUTATION, {
+    refetchQueries: [
+      {
+        query: getCurUser_Query,
+      },
+    ],
+  });
 
   const handleLogInChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
