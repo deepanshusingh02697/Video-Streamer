@@ -30,6 +30,7 @@ import type { Get_BubscribeOrNot_Interface } from "../graphql/client";
 import Comment from "./Comment";
 import { MyPlayer } from "../Component/VideoJs/MyPlayer";
 import "@fontsource/roboto/500.css";
+import { toast } from "react-toastify";
 
 export default function VedioDetail() {
   const { uploadId } = useParams();
@@ -78,25 +79,41 @@ export default function VedioDetail() {
   }, [getSubscribeOrNot]);
 
   const handleLikeBtn = async (id: number, liked: boolean) => {
-    const res = await handlelikeDislikeMutation({
-      variables: {
-        videoId: id,
-        liked: liked,
-      },
-    });
-    const response = res.data?.likeVideo?.liked;
-    setIsLiked(response ?? null);
+    try {
+      const res = await handlelikeDislikeMutation({
+        variables: {
+          videoId: id,
+          liked: liked,
+        },
+      });
+      const response = res.data?.likeVideo?.liked;
+      setIsLiked(response ?? null);
+    } catch (error) {
+      const err = error as Error;
+      toast(err.message, {
+        position: "top-right",
+        type: "warning",
+      });
+    }
   };
 
   const handleSubscribeBtn = async (channelId: number, subscribed: boolean) => {
-    const res = await subscribeChannel({
-      variables: {
-        channelId: channelId,
-        subscribe: subscribed,
-      },
-    });
-    const response = res.data?.subscribe;
-    setIsSubscribe(response?.subscribe ?? null);
+    try {
+      const res = await subscribeChannel({
+        variables: {
+          channelId: channelId,
+          subscribe: subscribed,
+        },
+      });
+      const response = res.data?.subscribe;
+      setIsSubscribe(response?.subscribe ?? null);
+    } catch (error) {
+      const err = error as Error;
+      toast(err.message, {
+        position: "top-right",
+        type: "warning",
+      });
+    }
   };
 
   if (loading) return <Typography>Loading...</Typography>;
@@ -129,7 +146,16 @@ export default function VedioDetail() {
             /> */}
             <MyPlayer src={data.getVideoById.upload_url} />
 
-            <CardContent sx={{ px: { xs: 0, sm: 2 } }}>
+            <CardContent
+              sx={{
+                px: {
+                  xs: 0,
+                  sm: 2,
+                  padding: "10px -10px",
+                  margin: "0px 0px 0px -13px",
+                },
+              }}
+            >
               <Typography
                 variant="h6"
                 sx={{
@@ -150,9 +176,10 @@ export default function VedioDetail() {
                 alignItems: "center",
                 gap: "8px",
                 px: { xs: 0, sm: 2 },
+                margin: "0px -24px 0px -25px",
               }}
             >
-              <CardActions disableSpacing sx={{ p: 0 }}>
+              <CardActions disableSpacing sx={{ padding: "0px" }}>
                 {isSubscribe === null ? (
                   <IconButton
                     aria-label="subscribe"

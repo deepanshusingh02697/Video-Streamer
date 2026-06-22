@@ -29,13 +29,14 @@ export default function Comment({ videoId }: proptype) {
   const [editComment, setEditComment] = useState<number | null>(null);
 
   const [addcommentM] = useMutation<AddCommentMutationMutation>(
-    addComment_Mutation,{
-      onCompleted:async()=>{
+    addComment_Mutation,
+    {
+      onCompleted: async () => {
         await client.refetchQueries({
-          include:"active"
-        })
-      }
-    }
+          include: "active",
+        });
+      },
+    },
   );
   const { authUser } = useContextCurUser();
   const menuRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -69,7 +70,7 @@ export default function Comment({ videoId }: proptype) {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, [activeIdx]);
 
-  useEffect(() => { 
+  useEffect(() => {
     console.log("curUserdata is : ", authUser);
 
     if (authUser) {
@@ -79,17 +80,15 @@ export default function Comment({ videoId }: proptype) {
     }
   }, []);
 
-
-
   const handleCommentChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setIsComment(e.target.value);
     handleDebounce(e.target.value);
   };
 
-  const { data,refetch:refetchComment } = useQuery<getComments_ByVideoId_Interface>(
-    getComment_ByVideoId,
-    { variables: { videoId } },
-  );
+  const { data, refetch: refetchComment } =
+    useQuery<getComments_ByVideoId_Interface>(getComment_ByVideoId, {
+      variables: { videoId },
+    });
 
   const [deletecomment] = useMutation<DeleteMutationMutation>(
     deleteComment_Mutation,
@@ -104,27 +103,35 @@ export default function Comment({ videoId }: proptype) {
       refetchQueries: [{ query: getComment_ByVideoId }],
     },
   );
-  useEffect(()=>{
-    refetchComment()
-  },[addcommentM,updateComment,data])
-  
+  useEffect(() => {
+    refetchComment();
+  }, [addcommentM, updateComment, data]);
+
   const handleSubmitBtn = async () => {
-    if (!isComent) return;
-    if (editComment !== null) {
-      await updateComment({
-        variables: {
-          commentId: editComment,
-          comment: isComent,
-        },
+    try {
+      if (!isComent) return;
+      if (editComment !== null) {
+        await updateComment({
+          variables: {
+            commentId: editComment,
+            comment: isComent,
+          },
+        });
+      } else {
+        const res = await addcommentM({
+          variables: { videoId, comment: isComent },
+        });
+        console.log("res after add comment is : ", res);
+      }
+      setIsComment("");
+      setEditComment(null);
+    } catch (error) {
+      const err = error as Error;
+      toast(err.message, {
+        position: "top-right",
+        type: "warning",
       });
-    } else {
-      const res = await addcommentM({
-        variables: { videoId, comment: isComent },
-      });
-      console.log("res after add comment is : ", res);
     }
-    setIsComment("");
-    setEditComment(null);
   };
 
   const commentsRes = data?.getCommentById;
@@ -141,11 +148,9 @@ export default function Comment({ videoId }: proptype) {
       setActiveIdx(null);
     } catch (error) {
       const err = error as Error;
-      console.log(err);
-
       toast.warn(err.message, {
         position: "top-right",
-        type: "success",
+        type: "warning",
       });
     }
   };
@@ -171,6 +176,7 @@ export default function Comment({ videoId }: proptype) {
           width: { xs: "100%", sm: "89%" },
           display: "flex",
           gap: "15px",
+          marginLeft: "14px",
         }}
       >
         <Avatar
@@ -220,6 +226,7 @@ export default function Comment({ videoId }: proptype) {
                   cursor: "pointer",
                   px: 2,
                   py: 0.5,
+                  margin: "0px 10px",
                   borderRadius: "18px",
                   bgcolor: "#2363f8",
                   color: "#fff",
@@ -250,6 +257,7 @@ export default function Comment({ videoId }: proptype) {
                 width: "100%",
                 gap: "12px",
                 alignItems: "flex-start",
+                marginLeft: "6px",
               }}
             >
               <Avatar sx={{ width: 32, height: 32, fontSize: "14px" }}>

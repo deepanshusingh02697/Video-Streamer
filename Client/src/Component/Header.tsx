@@ -274,6 +274,7 @@ const Header = () => {
                 <NavLink
                   to="/subscriber"
                   style={{ textDecoration: "none", color: "inherit" }}
+                  onClick={()=>setIsOpen(false)}
                 >
                   Subscribers
                 </NavLink>

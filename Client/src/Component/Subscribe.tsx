@@ -2,15 +2,23 @@ import { useQuery } from "@apollo/client/react";
 import { get_AllSubscribed_Query } from "../graphql/Query";
 import { Typography } from "@mui/material";
 import type { getSubscribed_Query_Interface } from "../graphql/client";
+import { useContextCurUser } from "./Context/authContext";
+import { useNavigate } from "react-router-dom";
 
 export default function Subscribe() {
   const { data, loading } = useQuery<getSubscribed_Query_Interface>(
     get_AllSubscribed_Query,
   );
+  const { authUser } = useContextCurUser();
+  const navigate = useNavigate();
   if (loading) return <Typography>Loading..</Typography>;
 
-  console.log("subscriber data is : ", data);
+  // console.log("subscriber data is : ", data);
 
+  if (!authUser) {
+    navigate("/login");
+    return;
+  }
   const subscribers = data?.getAllSubscribers;
 
   if (!subscribers) {
