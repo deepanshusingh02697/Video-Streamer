@@ -54,7 +54,8 @@ export default function VideoUpload() {
       const formData = new FormData();
       formData.append("videoStream", file);
 
-      const res = await fetch("http://localhost:4002/upload/video", {
+      // const res = await fetch("http://localhost:4002/upload/video", {
+      const res=await fetch("https://video-streamer-iuxd.onrender.com/upload/video",{
         method: "POST",
         body: formData,
       });
