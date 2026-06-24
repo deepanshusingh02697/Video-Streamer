@@ -41,6 +41,7 @@ const Header = () => {
   });
   const { data, refetch } = useQuery<CurrUserQuery |undefined>(getCurUser_Query);
 
+
   const handleLogout = async () => {
     try {
       await logOutUser();
@@ -65,7 +66,7 @@ const Header = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("form submittedd");
+    navigate("/")
     setSearchValuebyHook(searchValue);
   };
 

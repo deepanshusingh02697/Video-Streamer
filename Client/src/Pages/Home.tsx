@@ -8,6 +8,7 @@ import { Toolbar } from "@mui/material";
 import { useQuery } from "@apollo/client/react";
 import { Get_All_Vedios } from "../graphql/Query";
 import "@fontsource/roboto/500.css";
+import { TailSpin } from 'react-loader-spinner'
 
 import { useNavigate } from "react-router-dom";
 import type { Get_All_Vedios_QueryQuery } from "../types/__generated__/graphql";
@@ -34,7 +35,20 @@ export default function Home() {
     refetch({ search: isSearchVideo });
   }, [isSearchVideo]);
 
-  if (loading) return <Typography variant="body1">Loading...</Typography>;
+  // if (loading) return <Typography variant="body1">Loading...</Typography>
+  if(loading){
+    return (
+    <Typography sx={{width:"100vw",height:"90vh",display:"grid",placeItems:"center"}}>
+      <TailSpin
+        height="70"
+        width="70"
+        color="#4fa94d"
+        ariaLabel="tail-spin-loading"
+        visible={loading}
+      />
+    </Typography>
+  )
+  }
 
   const res = data?.getAllVideos;
 

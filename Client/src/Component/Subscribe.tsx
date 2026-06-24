@@ -30,7 +30,7 @@ export default function Subscribe() {
   }
   return (
     <div style={{ display: "grid", placeItems: "center", marginTop: "20px" }}>
-      <table style={{ width: "90vw" }}>
+      <table className="table" >
         <thead>
           <tr>
             <th>Name</th>

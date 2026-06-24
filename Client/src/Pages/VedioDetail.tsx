@@ -31,6 +31,7 @@ import Comment from "./Comment";
 import { MyPlayer } from "../Component/VideoJs/MyPlayer";
 import "@fontsource/roboto/500.css";
 import { toast } from "react-toastify";
+import { TailSpin } from 'react-loader-spinner'
 
 export default function VedioDetail() {
   const { uploadId } = useParams();
@@ -116,7 +117,19 @@ export default function VedioDetail() {
     }
   };
 
-  if (loading) return <Typography>Loading...</Typography>;
+  if(loading){
+    return (
+    <Typography sx={{width:"100vw",height:"90vh",display:"grid",placeItems:"center"}}>
+      <TailSpin
+        height="70"
+        width="70"
+        color="#4fa94d"
+        ariaLabel="tail-spin-loading"
+        visible={loading}
+      />
+    </Typography>
+  )
+  }
   if (error) return <Typography>{error.message}</Typography>;
 
   return (
@@ -183,7 +196,7 @@ export default function VedioDetail() {
                 {isSubscribe === null ? (
                   <IconButton
                     aria-label="subscribe"
-                    sx={{ borderRadius: "10px", gap: "6px", fontSize: "14px" }}
+                    sx={{ borderRadius: "10px", gap: "6px", fontSize: "16px" }}
                     onClick={() => handleSubscribeBtn(creatorId!, true)}
                   >
                     <NotificationsIcon fontSize="small" /> Subscribe
@@ -191,7 +204,7 @@ export default function VedioDetail() {
                 ) : isSubscribe ? (
                   <IconButton
                     aria-label="unsubscribe"
-                    sx={{ borderRadius: "10px", gap: "6px", fontSize: "14px" }}
+                    sx={{ borderRadius: "10px", gap: "6px", fontSize: "16px" }}
                     onClick={() => handleSubscribeBtn(creatorId!, false)}
                   >
                     <NotificationsActiveIcon fontSize="small" /> Subscribed

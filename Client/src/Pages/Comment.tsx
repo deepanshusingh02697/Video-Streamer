@@ -197,7 +197,7 @@ export default function Comment({ videoId }: proptype) {
                 border: "none",
                 paddingBottom: "5px",
                 width: "100%",
-                fontSize: "14px",
+                fontSize: "18px",
               }}
               onChange={handleCommentChange}
             />
@@ -211,7 +211,7 @@ export default function Comment({ videoId }: proptype) {
                 alignItems: "center",
                 justifyContent: "flex-end",
                 mt: 1,
-                fontSize: "13px",
+                fontSize: "16px",
               }}
             >
               <Box
@@ -268,13 +268,13 @@ export default function Comment({ videoId }: proptype) {
                   flex: 1,
                   display: "flex",
                   flexDirection: "column",
-                  gap: "2px",
+                  gap: "0px",
                 }}
               >
-                <Box sx={{ fontSize: "13px", fontWeight: 600 }}>
+                <Box sx={{ fontSize: "14px", fontWeight: 600 }}>
                   {cur.email}
                 </Box>
-                <Box sx={{ fontSize: "14px", wordBreak: "break-word" }}>
+                <Box sx={{ fontSize: "18px", wordBreak: "break-word" }}>
                   {cur.comment}
                 </Box>
               </Box>

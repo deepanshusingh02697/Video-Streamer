@@ -109,7 +109,7 @@ export default function Notiftication() {
                 top: "45px",
                 padding: "5px 7px",
                 borderRadius: "10px",
-                right: "0px",
+                right: "-50px",
                 zIndex: "100",
                 background: "#E6E6E6",
               }}
