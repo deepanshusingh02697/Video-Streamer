@@ -87,7 +87,7 @@ export default function Notiftication() {
     }
   };
 
-  if (loading) return <div>Loading notifications...</div>;
+  if (loading) return <div>Notifications...</div>;
 
   return (
     <IconButton

@@ -4,6 +4,7 @@ import { Typography } from "@mui/material";
 import type { getSubscribed_Query_Interface } from "../graphql/client";
 import { useContextCurUser } from "./Context/authContext";
 import { useNavigate } from "react-router-dom";
+import { TailSpin } from "react-loader-spinner";
 
 export default function Subscribe() {
   const { data, loading } = useQuery<getSubscribed_Query_Interface>(
@@ -11,7 +12,26 @@ export default function Subscribe() {
   );
   const { authUser } = useContextCurUser();
   const navigate = useNavigate();
-  if (loading) return <Typography>Loading..</Typography>;
+  if (loading) {
+      return (
+        <Typography
+          sx={{
+            width: "100vw",
+            minHeight: "80vh",
+            display: "grid",
+            placeItems: "center",
+          }}
+        >
+          <TailSpin
+            height="70"
+            width="70"
+            color="#4fa94d"
+            ariaLabel="tail-spin-loading"
+            visible={loading}
+          />
+        </Typography>
+      );
+    }
 
   // console.log("subscriber data is : ", data);
 
@@ -29,7 +49,7 @@ export default function Subscribe() {
     );
   }
   return (
-    <div style={{ display: "grid", placeItems: "center", marginTop: "20px" }}>
+    <div style={{ display: "grid", placeItems: "center",     marginTop:"20px"}}>
       <table className="table" >
         <thead>
           <tr>

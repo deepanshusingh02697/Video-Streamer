@@ -8,7 +8,7 @@ import { Toolbar } from "@mui/material";
 import { useQuery } from "@apollo/client/react";
 import { Get_All_Vedios } from "../graphql/Query";
 import "@fontsource/roboto/500.css";
-import { TailSpin } from 'react-loader-spinner'
+import { TailSpin } from "react-loader-spinner";
 
 import { useNavigate } from "react-router-dom";
 import type { Get_All_Vedios_QueryQuery } from "../types/__generated__/graphql";
@@ -26,7 +26,7 @@ export default function Home() {
       },
     },
   );
-  console.log("Get_All_Vedios ====> ",data);
+  console.log("Get_All_Vedios ====> ", data);
 
   const navigate = useNavigate();
   // setSearchValuebyHook("")
@@ -35,19 +35,25 @@ export default function Home() {
     refetch({ search: isSearchVideo });
   }, [isSearchVideo]);
 
-  // if (loading) return <Typography variant="body1">Loading...</Typography>
-  if(loading){
+  if (loading) {
     return (
-    <Typography sx={{width:"100vw",height:"90vh",display:"grid",placeItems:"center"}}>
-      <TailSpin
-        height="70"
-        width="70"
-        color="#4fa94d"
-        ariaLabel="tail-spin-loading"
-        visible={loading}
-      />
-    </Typography>
-  )
+      <Typography
+        sx={{
+          width: "100vw",
+          height: "90vh",
+          display: "grid",
+          placeItems: "center",
+        }}
+      >
+        <TailSpin
+          height="70"
+          width="70"
+          color="#4fa94d"
+          ariaLabel="tail-spin-loading"
+          visible={loading}
+        />
+      </Typography>
+    );
   }
 
   const res = data?.getAllVideos;
@@ -55,11 +61,23 @@ export default function Home() {
   console.log("data is. : ", data);
 
   if (!res) {
-    return <Typography variant="body1">No data Found</Typography>;
+    return (
+      <Typography
+        variant="body1"
+        sx={{
+          display: "grid",
+          placeItems: "center",
+          width: "100vw",
+          minHeight: "80vh",
+        }}
+      >
+        No Video Found  
+      </Typography>
+    );
   }
 
   return (
-    <Toolbar sx={{ display: "block", margin: "20px 0px" }}>
+    <Toolbar sx={{ display: "block", margin: {xs:"2px 0px", sm:"20px 0px"} }}>
       <Box
         sx={{
           display: "grid",
@@ -68,7 +86,7 @@ export default function Home() {
             sm: "repeat(auto-fill, minmax(350px, 1fr))",
           },
           gap: "5px",
-          padding: { xs: "0 16px", sm: "0 20px" },
+          padding: { xs: "0px", sm: "0 20px" },
         }}
       >
         {res.map((ele: any, idx: number) => {
@@ -97,12 +115,12 @@ export default function Home() {
                   sx={{
                     aspectRatio: "16 / 9",
                     height: "auto",
-                    width: "98%",
+                    width: {xs:"100%",sm:"98%"},
                     borderRadius: "16px",
                   }}
                   onClick={() => navigate(`upload/${ele.id}`)}
                 />
-                <CardContent sx={{width:"100%"}}>
+                <CardContent sx={{ width: "100%",padding:{xs:"16px 8px",sm:"16px 12px"} }}>
                   <Typography
                     gutterBottom
                     variant="h5"

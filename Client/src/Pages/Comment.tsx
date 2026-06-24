@@ -166,7 +166,7 @@ export default function Comment({ videoId }: proptype) {
         width: "100%",
         display: "grid",
         placeItems: "center",
-        margin: "15px 0px",
+        margin: {xs:"0px",sm:"15px 0px"},
         gap: "20px",
         px: { xs: 1, sm: 0 },
       }}
@@ -186,7 +186,7 @@ export default function Comment({ videoId }: proptype) {
         </Avatar>
         <Box sx={{ width: "100%" }}>
           <Box
-            sx={{ display: "flex", gap: "10px", flex: "1", marginTop: "14px" }}
+            sx={{ display: "flex", gap: "10px", flex: "1", marginTop:{xs:"7px",sm: "14px" }}}
           >
             <input
               type="text"

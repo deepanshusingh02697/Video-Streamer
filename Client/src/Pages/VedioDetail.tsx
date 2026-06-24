@@ -164,8 +164,8 @@ export default function VedioDetail() {
                 px: {
                   xs: 0,
                   sm: 2,
-                  padding: "10px -10px",
-                  margin: "0px 0px 0px -13px",
+                  padding: {xs:"10px 0px",sm:"10px -10px"},
+                  margin: {xs:"0px 0px 0px 5px",sm:"0px 0px 0px -13px"},
                 },
               }}
             >
@@ -175,6 +175,7 @@ export default function VedioDetail() {
                   fontSize: { xs: "16px", sm: "18px" },
                   fontWeight: 600,
                   fontFamily: "Roboto",
+                  padding:{xs:"0px 5px",sm:"0px"}
                 }}
               >
                 {data.getVideoById.title}
@@ -189,7 +190,7 @@ export default function VedioDetail() {
                 alignItems: "center",
                 gap: "8px",
                 px: { xs: 0, sm: 2 },
-                margin: "0px -24px 0px -25px",
+                margin: {xs:"0px 0px 0px -8px",sm:"0px -24px 0px -25px"},
               }}
             >
               <CardActions disableSpacing sx={{ padding: "0px" }}>
