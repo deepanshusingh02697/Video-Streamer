@@ -81,8 +81,8 @@ export default function Notiftication() {
     if (!isNotifOpen) {
       await updateReadNotif();
       setIsNotifOpen(true);
-    }else{
-      refetch()
+    } else {
+      refetch();
       setIsNotifOpen(false);
     }
   };
