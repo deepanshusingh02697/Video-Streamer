@@ -66,6 +66,13 @@ export default function LoginSignup() {
         setIsLogin(false);
       }
     } catch (error) {
+      const err = error as Error;
+      if (err) {
+        toast(err.message, {
+          position: "top-right",
+          type: "info",
+        });
+      }
       console.log("error in signupSubmit : ", error);
     }
   };

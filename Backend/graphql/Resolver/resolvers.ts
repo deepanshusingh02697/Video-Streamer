@@ -153,7 +153,7 @@ export const resolvers = {
         });
         if (existingUser)
           throw new Error(
-            "Account wiht this email already Exist - please logIn",
+            "Email already Exist- try new One",
           );
 
         const hashPassword = await bcrypt.hash(args.password, 10);
