@@ -5,28 +5,23 @@ import {
   context,
   createAndEmitNotification,
   isAuth,
-  twoUserRoomId,
 } from "../context";
 
 export const resolvers = {
   Query: {
     currentUser: async (_parent: unknown, _args: unknown, ctx: context) => {
-      isAuth(ctx);
-      try {
-        return prisma.user.findUnique({
-          where: { id: ctx.userId! },
-          include: {
-            userVideos: true,
-            subscribedTo: true,
-            comments: true,
-            subscribers: { include: { subscriber: true } },
-          },
-        });
-      } catch (error) {
-        console.log("error in signup mutation : ", error);
-        throw error;
-      }
+  isAuth(ctx);
+  return prisma.user.findUnique({
+    where: { id: ctx.userId! },
+    omit: { password: true },
+    include: {
+      userVideos: true,
+      subscribedTo: true,
+      comments: true,
+      subscribers: { include: { subscriber: { omit: { password: true } } } },
     },
+  });
+},
     getAllVideos: async (
       _parent: unknown,
       args: { search: string },
@@ -68,8 +63,10 @@ export const resolvers = {
         },
       });
     },
-    getAllUsers: async (_parent: unknown, args: unknown, ctx: unknown) => {
+    getAllUsers: async (_parent: unknown, args: unknown, ctx: context) => {
+      isAuth(ctx)
       return await prisma.user.findMany({
+        omit:{password:true},
         include: { comments: true, videos: true },
       });
     },
@@ -86,8 +83,8 @@ export const resolvers = {
           },
         },
         include: {
-          subscriber: true,
-          channel: true,
+          subscriber: {omit:{password:true}},
+          channel: {omit:{password:true}},
         },
       });
     },
@@ -102,24 +99,20 @@ export const resolvers = {
           channelId: ctx.userId!,
         },
         include: {
-          subscriber: true,
-          channel: true,
+          subscriber: {omit:{password:true}},
+          channel: {omit:{password:true}},
         },
       });
     },
-    getCommentById: async (
-      _parent: unknown,
-      args: { videoId: number },
-      ctx: context,
-    ) => {
-      const res = await prisma.comment.findMany({
-        where: {
-          videoId: args.videoId,
-        },
-        include: { user: true, video: true },
-      });
-      return res;
+    getCommentById: async (_parent: unknown, args: { videoId: number }, ctx: context) => {
+  return await prisma.comment.findMany({
+    where: { videoId: args.videoId },
+    include: {
+      user: { omit: { password: true } },
+      video: true,
     },
+  });
+},
     getNotifications: async (
       _parent: unknown,
       _args: unknown,
@@ -127,9 +120,9 @@ export const resolvers = {
     ) => {
       isAuth(ctx);
       return await prisma.notification.findMany({
-        where: { receiverId: ctx.userId!,isRead:false },
+        where: { receiverId: ctx.userId!, isRead: false },
         orderBy: { createdAt: "desc" },
-        include: { sender: true, receiver: true },
+        include: { sender: {omit:{password:true}}, receiver: {omit:{password:true}} },
       });
     },
   },
@@ -144,37 +137,29 @@ export const resolvers = {
       },
       _ctx: unknown,
     ) => {
-      try {
-        if (!args.firstname || !args.email || !args.password) {
-          throw new Error("Provide all credentials");
-        }
-        const existingUser = await prisma.user.findUnique({
-          where: { email: args.email },
-        });
-        if (existingUser)
-          throw new Error(
-            "Email already Exist- try new One",
-          );
-
-        const hashPassword = await bcrypt.hash(args.password, 10);
-
-        const user = await prisma.user.create({
-          data: {
-            firstname: args.firstname,
-            lastname: args.lastname,
-            email: args.email,
-            password: hashPassword,
-          },
-        });
-        const { password, ...safeUser } = user;
-
-        console.log("user signup successfully ", safeUser);
-
-        return { user: safeUser };
-      } catch (error) {
-        console.log("error in signup mutation : ", error);
-        throw error;
+      if (!args.firstname || !args.email || !args.password) {
+        throw new Error("Provide all credentials");
       }
+      const existingUser = await prisma.user.findUnique({
+        where: { email: args.email },
+      });
+      if (existingUser) throw new Error("Email already Exist- try new One");
+
+      const hashPassword = await bcrypt.hash(args.password, 10);
+
+      const user = await prisma.user.create({
+        data: {
+          firstname: args.firstname,
+          lastname: args.lastname,
+          email: args.email,
+          password: hashPassword,
+        },
+      });
+      const { password, ...safeUser } = user;
+
+      console.log("user signup successfully ", safeUser);
+
+      return { user: safeUser };
     },
     logIn: async (
       _parent: unknown,
@@ -184,37 +169,32 @@ export const resolvers = {
       },
       ctx: context,
     ) => {
-      try {
-        if (!args.email || !args.password) {
-          throw new Error("Email and Password are required ");
-        }
-        const user = await prisma.user.findUnique({
-          where: { email: args.email.toLowerCase().trim() },
-        });
-        if (!user) {
-          throw new Error("Invalid credentials to login ");
-        }
-        const passwordMatches = await bcrypt.compare(
-          args.password,
-          user.password,
-        );
-
-        if (!passwordMatches) {
-          throw new Error("Invalid credentials to login as Admin");
-        }
-
-        setTokens(ctx.res, user.id, user.email);
-
-        const { password, ...safeUser } = user;
-
-        console.log("login successfull");
-        return {
-          user: safeUser,
-        };
-      } catch (error) {
-        console.log("error in login mutation : ", error);
-        throw error;
+      if (!args.email || !args.password) {
+        throw new Error("Email and Password are required ");
       }
+      const user = await prisma.user.findUnique({
+        where: { email: args.email.toLowerCase().trim() },
+      });
+      if (!user) {
+        throw new Error("Invalid credentials to login ");
+      }
+      const passwordMatches = await bcrypt.compare(
+        args.password,
+        user.password,
+      );
+
+      if (!passwordMatches) {
+        throw new Error("Invalid credentials to login as Admin");
+      }
+
+      setTokens(ctx.res, user.id, user.email);
+
+      const { password, ...safeUser } = user;
+
+      console.log("login successfull");
+      return {
+        user: safeUser,
+      };
     },
 
     logout: async (_parent: unknown, _args: unknown, ctx: context) => {
@@ -275,8 +255,6 @@ export const resolvers = {
       ctx: context,
     ) => {
       isAuth(ctx);
-      console.log(args.subscribe);
-
       const subscription = await prisma.subscribe.upsert({
         where: {
           subscriberId_channelId: {
@@ -338,9 +316,7 @@ export const resolvers = {
       args: { commentId: number },
       ctx: context,
     ) => {
-      if (!ctx.userId) {
-        throw new Error("Not authenticated");
-      }
+      isAuth(ctx)
       const comment = await prisma.comment.findUnique({
         where: {
           id: args.commentId,
@@ -398,9 +374,6 @@ export const resolvers = {
         },
         include: { sender: true, receiver: true },
       });
-      console.log("message is : ", notiMsg);
-      // const roomId = twoUserRoomId<number>(ctx.userId!, args.receiverId);
-      // await ctx.io.to(roomId).emit("newNotification", notiMsg);
       const roomId = String(args.receiverId);
       await ctx.io.to(roomId).emit("newNotification", notiMsg);
       return notiMsg;
@@ -412,11 +385,11 @@ export const resolvers = {
     ) => {
       isAuth(ctx);
       await prisma.notification.updateMany({
-        where:{receiverId:ctx.userId!,isRead:false},
-        data:{isRead:true}
-      })
-      return true
-    }
+        where: { receiverId: ctx.userId!, isRead: false },
+        data: { isRead: true },
+      });
+      return true;
+    },
   },
 
   User: {

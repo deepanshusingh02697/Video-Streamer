@@ -7,7 +7,6 @@ export const getCurUser_Query = gql`
       firstname
       lastname
       email
-      password
       createdAt
       updatedAt
       subscriberCount

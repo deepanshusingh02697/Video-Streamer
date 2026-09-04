@@ -18,8 +18,6 @@ export const checkAuth =
     let userId: number | null = null;
     let email: string | null = null;
     const accessToken = req.cookies.accessToken;
-    console.log("accessToken is : ", accessToken);
-
     if (accessToken) {
       try {
         const decoded = verifyaccessToken(accessToken);
@@ -62,8 +60,6 @@ export const createAndEmitNotification = async (
     include: { sender: true, receiver: true },
   });
   console.log("message is : ", notiMsg);
-  // const roomId = twoUserRoomId<number>(ctx.userId!, channelId);
-  // await ctx.io.to(roomId).emit("newNotification", notiMsg);
   const roomId = String(channelId)
   await ctx.io.to(roomId).emit("newNotification", notiMsg);
   return notiMsg;

@@ -7,21 +7,6 @@ const httpLink = createHttpLink({
   credentials: "include",
 });
 
-/* export const client = new ApolloClient({
-    link: httpLink,
-  cache: new InMemoryCache({
-    typePolicies:{
-      Query:{
-        fields:{
-          getComment_ByVideoId:{
-            keyArgs:["skip"]
-          }
-        }
-      }
-    }
-  }),
-}); */
-
 export const client = new ApolloClient({
     link: httpLink,
   cache: new InMemoryCache(),

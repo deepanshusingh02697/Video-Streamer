@@ -26,20 +26,23 @@ export default function Notiftication() {
 
   const [updateReadNotif] = useMutation<boolean>(
     updateReadNotification_Mutation,
-    // {
-    //   refetchQueries: [
-    //     {
-    //       query: getNotifications,
-    //     },
-    //   ],
-    // },
   );
 
   const [notifications, setNotifications] = React.useState<NotificationItem[]>(
     [],
   );
+  const notiRef = React.useRef<HTMLDivElement>(null);
   const { authUser } = useContextCurUser();
 
+  React.useEffect(() => {
+    const handleNotifPopup = (event: MouseEvent) => {
+      if (notiRef.current && !notiRef.current?.contains(event.target as Node)) {
+        setIsNotifOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleNotifPopup);
+    return () => document.removeEventListener("mousedown", handleNotifPopup);
+  });
   React.useEffect(() => {
     if (data?.getNotifications) {
       setNotifications(data.getNotifications);
@@ -100,64 +103,66 @@ export default function Notiftication() {
         color="error"
         onClick={handleNotificationRead}
       >
-        <NotificationsIcon />
-        {isNotifOpen && (
-          <>
-            <Box
-              sx={{
-                position: "absolute",
-                top: "45px",
-                padding: "5px 7px",
-                borderRadius: "10px",
-                right: "-50px",
-                zIndex: "100",
-                background: "#E6E6E6",
-              }}
-            >
+        <Box ref={notiRef}>
+          <NotificationsIcon />
+          {isNotifOpen && (
+            <>
               <Box
                 sx={{
-                  display: "flex",
-                  flexDirection: "column",
-                  placeItems: "center",
-                  fontSize: "16px",
-                  minWidth: "300px",
-                  gap: "5px",
+                  position: "absolute",
+                  top: "45px",
+                  padding: "5px 7px",
+                  borderRadius: "10px",
+                  right: "-50px",
+                  zIndex: "100",
+                  background: "#E6E6E6",
                 }}
               >
-                {notifications.length === 0 ? (
-                  <Box>No notifications yet</Box>
-                ) : (
-                  notifications.map((noti) => (
-                    <Box
-                      key={noti.id}
-                      sx={{
-                        padding: "5px",
-                        borderRadius: "10px",
-                        width: "100%",
-                        borderBottom: "1px solid #ddd",
-                        backgroundColor: noti.isRead ? "white" : "#f0f7ff",
-                      }}
-                    >
-                      <Box>{noti.message}</Box>
-                      <Box>
-                        {new Date(Number(noti.createdAt)).toLocaleTimeString(
-                          "en-IN",
-                          {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "2-digit",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          },
-                        )}
+                <Box
+                  sx={{
+                    display: "flex",
+                    flexDirection: "column",
+                    placeItems: "center",
+                    fontSize: "16px",
+                    minWidth: "300px",
+                    gap: "5px",
+                  }}
+                >
+                  {notifications.length === 0 ? (
+                    <Box>No notifications yet</Box>
+                  ) : (
+                    notifications.map((noti) => (
+                      <Box
+                        key={noti.id}
+                        sx={{
+                          padding: "5px",
+                          borderRadius: "10px",
+                          width: "100%",
+                          borderBottom: "1px solid #ddd",
+                          backgroundColor: noti.isRead ? "white" : "#f0f7ff",
+                        }}
+                      >
+                        <Box>{noti.message}</Box>
+                        <Box>
+                          {new Date(Number(noti.createdAt)).toLocaleTimeString(
+                            "en-IN",
+                            {
+                              day: "2-digit",
+                              month: "2-digit",
+                              year: "2-digit",
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            },
+                          )}
+                        </Box>
                       </Box>
-                    </Box>
-                  ))
-                )}
+                    ))
+                  )}
+                </Box>
               </Box>
-            </Box>
-          </>
-        )}
+            </>
+          )}
+        </Box>
       </Badge>
     </IconButton>
   );

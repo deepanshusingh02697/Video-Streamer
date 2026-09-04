@@ -11,7 +11,7 @@ import AccountCircleIcon from "@mui/icons-material/AccountCircle";
 import SearchIcon from "@mui/icons-material/Search";
 import AddIcon from "@mui/icons-material/Add";
 import CloseIcon from "@mui/icons-material/Close";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useApolloClient, useMutation, useQuery } from "@apollo/client/react";
 import { toast } from "react-toastify";
@@ -31,6 +31,7 @@ const Header = () => {
   const client = useApolloClient();
   const isMobile = useMediaQuery("(max-width:768px)");
   const { setSearchValuebyHook } = useSearchVideo();
+  const profileRef = useRef<HTMLDivElement>(null);
 
   const [logOutUser] = useMutation<boolean>(Logout_Mutation, {
     refetchQueries: [
@@ -39,8 +40,21 @@ const Header = () => {
       },
     ],
   });
-  const { data, refetch } = useQuery<CurrUserQuery |undefined>(getCurUser_Query);
-
+  const { data, refetch } = useQuery<CurrUserQuery | undefined>(
+    getCurUser_Query,
+  );
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        profileRef.current &&
+        !profileRef.current.contains(event.target as Node)
+      ) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const handleLogout = async () => {
     try {
@@ -66,7 +80,7 @@ const Header = () => {
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/")
+    navigate("/");
     setSearchValuebyHook(searchValue);
   };
 
@@ -227,80 +241,81 @@ const Header = () => {
 
           <Notiftication />
 
-          <IconButton
-            color="inherit"
-            onClick={() => {
-              setIsOpen(!isOpen);
-            }}
-          >
-            {data!==undefined ? (
-              <Avatar
-                sx={{
-                  width: 32,
-                  height: 32,
-                  fontSize: "14px",
-                  background: "#00887B",
-                }}
-              >
-                {data?.currentUser.firstname[0].toUpperCase()}
-              </Avatar>
-            ) : (
-              <AccountCircleIcon />
-            )}
-          </IconButton>
-        </Box>
-
-        {isOpen && (
-          <Box
-            sx={{
-              position: "absolute",
-              right: { xs: "12px", sm: "20px" },
-              padding: "4px 12px",
-              top: "63px",
-              zIndex: 10,
-              backgroundColor: "white",
-              boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
-              borderRadius: "8px",
-            }}
-          >
-            <Box
-              sx={{
-                padding: "1px",
-                display: "flex",
-                gap: "5px",
-                flexDirection: "column",
+          <Box ref={profileRef} sx={{ position: "relative" }}>
+            <IconButton
+              color="inherit"
+              onClick={() => {
+                setIsOpen(!isOpen);
               }}
             >
-              <Button sx={{ textTransform: "capitalize" }}>
-                <NavLink
-                  to="/subscriber"
-                  style={{ textDecoration: "none", color: "inherit" }}
-                  onClick={()=>setIsOpen(false)}
+              {data !== undefined ? (
+                <Avatar
+                  sx={{
+                    width: 32,
+                    height: 32,
+                    fontSize: "14px",
+                    background: "#00887B",
+                  }}
                 >
-                  Subscribers
-                </NavLink>
-              </Button>
-              {data? (
-                <Button
-                  sx={{ textTransform: "capitalize" }}
-                  onClick={handleLogout}
-                >
-                  Logout
-                </Button>
+                  {data?.currentUser.firstname[0].toUpperCase()}
+                </Avatar>
               ) : (
-                <Button sx={{ textTransform: "capitalize" }}>
-                  <NavLink
-                    to="/login"
-                    style={{ textDecoration: "none", color: "inherit" }}
-                    onClick={()=>setIsOpen(false)}
-                  >
-                    LogIn
-                  </NavLink>
-                </Button>
+                <AccountCircleIcon />
               )}
-            </Box>
+            </IconButton>
+            {isOpen && (
+              <Box
+                sx={{
+                  position: "absolute",
+                  right: { xs: "12px", sm: "20px" },
+                  padding: "4px 12px",
+                  top: "63px",
+                  zIndex: 10,
+                  backgroundColor: "white",
+                  boxShadow: "rgba(100, 100, 111, 0.2) 0px 7px 29px 0px",
+                  borderRadius: "8px",
+                }}
+              >
+                <Box
+                  sx={{
+                    padding: "1px",
+                    display: "flex",
+                    gap: "5px",
+                    flexDirection: "column",
+                  }}
+                >
+                  <Button sx={{ textTransform: "capitalize" }}>
+                    <NavLink
+                      to="/subscriber"
+                      style={{ textDecoration: "none", color: "inherit" }}
+                      onClick={() => setIsOpen(false)}
+                    >
+                      Subscribers
+                    </NavLink>
+                  </Button>
+                  {data ? (
+                    <Button
+                      sx={{ textTransform: "capitalize" }}
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </Button>
+                  ) : (
+                    <Button sx={{ textTransform: "capitalize" }}>
+                      <NavLink
+                        to="/login"
+                        style={{ textDecoration: "none", color: "inherit" }}
+                        onClick={() => setIsOpen(false)}
+                      >
+                        LogIn
+                      </NavLink>
+                    </Button>
+                  )}
+                </Box>
+              </Box>
+            )}
           </Box>
-        )}
+        </Box>
       </Toolbar>
     </>
   );

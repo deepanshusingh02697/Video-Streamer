@@ -10,15 +10,27 @@ import { checkAuth, context } from "./graphql/context";
 import uploadRouter from "./Routes/uploadRoutes";
 import cors from "cors";
 import { Server } from "socket.io";
+import rateLimit from "express-rate-limit";
+
 
 const app = express();
+app.set("trust proxy", 1);
+app.use(cookieParser());
 const port = process.env.PORT || 4001;
 
 const httpServer = createServer(app);
+const apiLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 300,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});
+
+const allowedOrigin=["http://localhost:5173","https://video-streamer-client-pghg.onrender.com"]
 
 app.use(
   cors({
-    origin: ["http://localhost:5173","https://video-streamer-client-pghg.onrender.com"],
+    origin: allowedOrigin,
     methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
     allowedHeaders: ["Content-Type", "Authorization"],
     credentials: true,
@@ -28,7 +40,7 @@ app.use(
 
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173"], 
+    origin: allowedOrigin, 
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -49,7 +61,13 @@ io.on("connect", (socket) => {
   });
 });
 
-app.use("/upload", uploadRouter);
+const uploadLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: "draft-8",
+  legacyHeaders: false,
+});
+app.use("/upload",uploadLimiter, uploadRouter);
 
 const server = new ApolloServer<context>({
   typeDefs,
@@ -62,8 +80,8 @@ async function startServer() {
 
   app.use(
     "/graphql",
+    apiLimiter,
     express.json(),
-    cookieParser(),
     expressMiddleware<context>(server, {
       context: checkAuth(io),
     }),

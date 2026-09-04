@@ -4,7 +4,6 @@ type User{
     firstname:String!
     lastname:String!
     email:String!
-    password:String!
 
     createdAt:String!
     updatedAt:String!
